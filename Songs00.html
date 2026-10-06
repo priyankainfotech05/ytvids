@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+<title>YT Player</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+
+.w3-bar .w3-button {
+  padding: 16px;
+}
+
+* {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .player-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      margin-top: 35px;
+    }
+
+    @media (min-width: 860px) {
+      .player-layout {
+        flex-direction: row;
+        align-items: stretch;
+      }
+    }
+
+    /* Left: Video & Controls */
+    .main-player {
+      flex: 1 1 65%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%; /* 16:9 Ratio */
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .video-container iframe,
+    .video-container div {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-nav {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-nav:hover {
+      background: #2563eb;
+    }
+
+    .now-playing {
+      font-size: 14px;
+      color: #94a3b8;
+      background: #0f172a;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border-left: 3px solid #3b82f6;
+    }
+
+    /* Right: Scrollable Playlist Sidebar */
+    .sidebar {
+      flex: 1 1 35%;
+      display: flex;
+      flex-direction: column;
+      background: #0f172a;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #334155;
+      max-height: 480px;
+    }
+
+    .sidebar-header {
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .playlist-items {
+      overflow-y: auto;
+      flex: 1;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Custom Scrollbar */
+    .playlist-items::-webkit-scrollbar {
+      width: 6px;
+    }
+    .playlist-items::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 4px;
+    }
+
+    /* Video Item Card */
+    .playlist-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+      align-items: center;
+    }
+
+    .playlist-item:hover {
+      background: #1e293b;
+    }
+
+    .playlist-item.active {
+      background: #1e293b;
+      border-color: #3b82f6;
+    }
+
+    .thumb-wrapper {
+      position: relative;
+      width: 100px;
+      min-width: 100px;
+      aspect-ratio: 16 / 9;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .thumb-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .item-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #f1f5f9;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .item-channel {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+</style>
+<body>
+
+<!-- Navbar (sit on top) -->
+<div class="w3-top">
+  <div class="w3-bar w3-white w3-card" id="myNavbar">
+    <a href="#home" class="w3-bar-item w3-button">YT Player</a>
+    <!-- Right-sided navbar links -->
+    <div class="w3-right w3-hide-small">
+        <a href="Songs00.html" class="w3-bar-item w3-button">Songs-00</a>
+        <a href="Songs01.html" class="w3-bar-item w3-button">Songs-01</a>
+        <a href="SongsBhakti.html" class="w3-bar-item w3-button">Songs-Bhakti</a>
+    	<a href="Movies.html" class="w3-bar-item w3-button">Movies</a>
+		<a href="Earn.html" class="w3-bar-item w3-button">Earn</a>
+    </div>
+    <!-- Hide right-floated links on small screens and replace them with a menu icon -->
+
+    <a href="javascript:void(0)" class="w3-bar-item w3-button w3-right w3-hide-large w3-hide-medium" onclick="w3_open()">
+      <i class="fa fa-bars"></i>
+    </a>
+  </div>
+</div>
+
+<!-- Sidebar on small screens when clicking the menu icon -->
+<nav class="w3-sidebar w3-bar-block w3-black w3-card w3-animate-left w3-hide-medium w3-hide-large" style="display:none" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-bar-item w3-button w3-large w3-padding-16">Close ×</a>
+  <a href="Songs00.html" onclick="w3_close()" class="w3-bar-item w3-button">Songs-00</a>
+  <a href="Songs01.html" onclick="w3_close()" class="w3-bar-item w3-button">Songs-01</a>
+  <a href="SongsBhakti.html" onclick="w3_close()" class="w3-bar-item w3-button">Songs-Bhakti</a>
+  <a href="Movies.html" onclick="w3_close()" class="w3-bar-item w3-button">Movies</a>
+  <a href="Earn.html" onclick="w3_close()" class="w3-bar-item w3-button">Earn</a>
+</nav>
+
+<!-- YT Player -->
+
+<div class="player-layout">
+    <!-- Left: Video & Controls -->
+    <div class="main-player">
+      <div class="video-container">
+        <div id="yt-player"></div>
+      </div>
+
+      <div class="controls-bar">
+        <button class="btn-nav" onclick="prevVideo()">⏮ Prev</button>
+        <button class="btn-nav" onclick="nextVideo()">Next ⏭</button>
+      </div>
+
+      <div class="now-playing" id="track-info">Loading playlist...</div>
+    </div>
+
+    <!-- Right: Sidebar Playlist -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span>Playlist Queue</span>
+        <span id="track-count">0 videos</span>
+      </div>
+      <div class="playlist-items" id="playlist-container"></div>
+    </div>
+  </div>
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    const PLAYLIST_ID = 'PLWAOF9SSNGk7O_lqFZLiSHI6vxn95Q83X';
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('yt-player', {
+        playerVars: {
+          listType: 'playlist',
+          list: PLAYLIST_ID,
+          autoplay: 0,
+          rel: 0
+        },
+        events: {
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+
+    async function onPlayerReady(event) {
+      const videoIds = player.getPlaylist();
+      const container = document.getElementById('playlist-container');
+      const countLabel = document.getElementById('track-count');
+      container.innerHTML = '';
+
+      if (!videoIds || videoIds.length === 0) {
+        countLabel.textContent = '0 videos';
+        return;
+      }
+
+      countLabel.textContent = `${videoIds.length} videos`;
+
+      // Build each sidebar row
+      videoIds.forEach((id, index) => {
+        const item = document.createElement('div');
+        item.className = `playlist-item ${index === 0 ? 'active' : ''}`;
+        item.id = `track-item-${index}`;
+        item.onclick = () => selectVideo(index);
+
+        // Standard YouTube direct thumbnail URL
+        const thumbUrl = `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
+
+        item.innerHTML = `
+          <div class="thumb-wrapper">
+            <img src="${thumbUrl}" alt="Thumbnail" loading="lazy" />
+          </div>
+          <div class="item-meta">
+            <div class="item-title" id="title-index">{index + 1}. Loading title...</div>
+            <div class="item-channel" id="channel-${index}">YouTube Video</div>
+          </div>
+        `;
+
+        container.appendChild(item);
+
+        // Fetch Title & Channel Name
+        fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`)
+          .then(res => res.json())
+          .then(data => {
+            const titleEl = document.getElementById(`title-${index}`);
+            const channelEl = document.getElementById(`channel-${index}`);
+            if (titleEl && data.title) titleEl.textContent = `${index + 1}. ${data.title}`;
+            if (channelEl && data.author_name) channelEl.textContent = data.author_name;
+
+            if (index === 0) updateCurrentInfo(0);
+          })
+          .catch(() => {
+            const titleEl = document.getElementById(`title-${index}`);
+            if (titleEl) titleEl.textContent = `index+1.Video({id})`;
+          });
+      });
+
+      updateCurrentInfo(0);
+    }
+
+    function prevVideo() {
+      if (player && player.previousVideo) {
+        player.previousVideo();
+      }
+    }
+
+    function nextVideo() {
+      if (player && player.nextVideo) {
+        player.nextVideo();
+      }
+    }
+
+    function selectVideo(index) {
+      if (player && player.playVideoAt) {
+        player.playVideoAt(index);
+      }
+    }
+
+    function onPlayerStateChange(event) {
+      if (player && player.getPlaylistIndex) {
+        const currentIndex = player.getPlaylistIndex();
+        if (currentIndex >= 0) {
+          highlightTrack(currentIndex);
+          updateCurrentInfo(currentIndex);
+        }
+      }
+    }
+
+    function highlightTrack(index) {
+      document.querySelectorAll('.playlist-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+
+      // Auto-scroll the sidebar to keep active video in view
+      const activeItem = document.getElementById(`track-item-${index}`);
+      if (activeItem) {
+        activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    function updateCurrentInfo(index) {
+      const titleEl = document.getElementById(`title-${index}`);
+      const channelEl = document.getElementById(`channel-${index}`);
+      const title = titleEl ? titleEl.textContent : `Track ${index + 1}`;
+      const channel = channelEl ? channelEl.textContent : '';
+      
+      document.getElementById('track-info').textContent = 
+        `Now Playing: ${title} ${channel ? '• ' + channel : ''}`;
+    }
+  </script>
+
+
+
+ 
+<script>
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+
+
+// Toggle between showing and hiding the sidebar when clicking the menu icon
+var mySidebar = document.getElementById("mySidebar");
+
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+  } else {
+    mySidebar.style.display = 'block';
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+}
+</script>
+
+</body>
+</html>
